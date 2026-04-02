@@ -261,7 +261,7 @@ impl MessageStream {
             match self.response.chunk().await? {
                 Some(chunk) => {
                     for parsed in self.parser.push(&chunk)? {
-                        self.pending.extend(self.state.ingest_chunk(parsed)?);
+                        self.pending.extend(self.state.ingest_chunk(parsed));
                     }
                 }
                 None => {
@@ -330,7 +330,7 @@ impl StreamState {
         }
     }
 
-    fn ingest_chunk(&mut self, chunk: ChatCompletionChunk) -> Result<Vec<StreamEvent>, ApiError> {
+    fn ingest_chunk(&mut self, chunk: ChatCompletionChunk) -> Vec<StreamEvent> {
         let mut events = Vec::new();
         if !self.message.started {
             self.message.started = true;
@@ -418,7 +418,7 @@ impl StreamState {
             }
         }
 
-        Ok(events)
+        events
     }
 
     fn finish(&mut self) -> Result<Vec<StreamEvent>, ApiError> {
